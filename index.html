@@ -360,13 +360,15 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
     <div class="card">
       <div class="card-header"><h3>Portales de búsqueda</h3></div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:7px">
-        <a class="portal-card" href="https://cl.indeed.com/q-ingeniero-electrico-l-temuco,-araucan%C3%ADa-empleos.html" target="_blank"><div class="portal-icon">I</div><div class="portal-info"><strong>Indeed.cl</strong><span>Cobertura nacional · alta prioridad</span></div><span class="portal-arrow">→</span></a>
-        <a class="portal-card" href="https://www.laborum.cl/empleos-area-ingenierias-subarea-ingenieria-electrica-y-electronica.html" target="_blank"><div class="portal-icon">L</div><div class="portal-info"><strong>Laborum.cl</strong><span>Portal líder Chile · alta prioridad</span></div><span class="portal-arrow">→</span></a>
-        <a class="portal-card" href="https://www.linkedin.com/jobs/search/?keywords=ingeniero%20electricista&location=Araucan%C3%ADa" target="_blank"><div class="portal-icon" style="color:var(--blue)">in</div><div class="portal-info"><strong>LinkedIn Chile</strong><span>Red profesional · alta prioridad</span></div><span class="portal-arrow">→</span></a>
-        <a class="portal-card" href="https://www.trabajando.cl/trabajo-ingeniero-electrico" target="_blank"><div class="portal-icon">T</div><div class="portal-info"><strong>Trabajando.com</strong><span>Empleos formales · media prioridad</span></div><span class="portal-arrow">→</span></a>
-        <a class="portal-card" href="https://www.chiletrabajos.cl/encuentra-un-empleo/?2=ingeniero+electrico" target="_blank"><div class="portal-icon">C</div><div class="portal-info"><strong>ChileTrabajos.cl</strong><span>Mercado local · media prioridad</span></div><span class="portal-arrow">→</span></a>
-        <a class="portal-card" href="https://www.mop.gob.cl/concursos-vigentes/" target="_blank"><div class="portal-icon" style="color:var(--amber)">MOP</div><div class="portal-info"><strong>MOP Concursos Vigentes</strong><span>Objetivo principal · alta prioridad</span></div><span class="portal-arrow">→</span></a>
-        <a class="portal-card" href="https://www.mercadopublico.cl/Licitacion" target="_blank"><div class="portal-icon">MP</div><div class="portal-info"><strong>Mercado Público</strong><span>Servicios profesionales</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://cl.indeed.com/q-ingeniero-civil-electricista-l-temuco,-araucan%C3%ADa-empleos.html" target="_blank"><div class="portal-icon">I</div><div class="portal-info"><strong>Indeed.cl</strong><span>Ing. Civil Electricista · Temuco</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.laborum.cl/empleos-busqueda-ingeniero-civil-electricista.html" target="_blank"><div class="portal-icon">L</div><div class="portal-info"><strong>Laborum.cl</strong><span>Ing. Civil Electricista · Chile</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.linkedin.com/jobs/search/?keywords=ingeniero+civil+electricista&location=Araucan%C3%ADa%2C+Chile" target="_blank"><div class="portal-icon" style="color:var(--blue)">in</div><div class="portal-info"><strong>LinkedIn Chile</strong><span>Ing. Civil Electricista · Araucanía</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.trabajando.cl/trabajo-ingeniero-civil-electricista" target="_blank"><div class="portal-icon">T</div><div class="portal-info"><strong>Trabajando.com</strong><span>Ing. Civil Electricista · Chile</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.chiletrabajos.cl/encuentra-un-empleo/?2=ingeniero+civil+electricista" target="_blank"><div class="portal-icon">C</div><div class="portal-info"><strong>ChileTrabajos.cl</strong><span>Ing. Civil Electricista · Araucanía</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.mop.gob.cl/concursos-vigentes/" target="_blank"><div class="portal-icon" style="color:var(--amber)">MOP</div><div class="portal-info"><strong>MOP Concursos Vigentes</strong><span>Objetivo principal · concursos abiertos</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.mercadopublico.cl/Home/Contratacion/Buscador?q=ingeniero+electrico" target="_blank"><div class="portal-icon">MP</div><div class="portal-info"><strong>Mercado Público</strong><span>Servicios profesionales eléctricos</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://cl.computrabajo.com/trabajo-de-ingeniero-civil-electricista" target="_blank"><div class="portal-icon">CT</div><div class="portal-info"><strong>ComputTrabajo.cl</strong><span>Ing. Civil Electricista · Chile</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://cl.jooble.org/trabajo-ingeniero-civil-electricista/Temuco" target="_blank"><div class="portal-icon">J</div><div class="portal-info"><strong>Jooble.cl</strong><span>Ing. Civil Electricista · Temuco</span></div><span class="portal-arrow">→</span></a>
       </div>
     </div>
     <div class="card">
@@ -768,37 +770,37 @@ function showPage(id){
 }
 
 function doSearch(t){
+  const ALL=[
+    'https://cl.indeed.com/q-ingeniero-civil-electricista-l-temuco,-araucan%C3%ADa-empleos.html',
+    'https://www.laborum.cl/empleos-busqueda-ingeniero-civil-electricista.html',
+    'https://www.linkedin.com/jobs/search/?keywords=ingeniero+civil+electricista&location=Araucan%C3%ADa',
+    'https://www.trabajando.cl/trabajo-ingeniero-civil-electricista',
+    'https://www.chiletrabajos.cl/encuentra-un-empleo/?2=ingeniero+civil+electricista',
+    'https://www.mop.gob.cl/concursos-vigentes/',
+    'https://www.mercadopublico.cl/Home/Contratacion/Buscador?q=ingeniero+electrico',
+    'https://cl.computrabajo.com/trabajo-de-ingeniero-civil-electricista',
+    'https://cl.jooble.org/trabajo-ingeniero-civil-electricista/Temuco'
+  ];
   const urls={
-    lunes:[
-      'https://cl.indeed.com/q-ingeniero-electrico-l-temuco,-araucan%C3%ADa-empleos.html',
-      'https://www.laborum.cl/empleos-busqueda-ingeniero-electrico.html',
-      'https://www.trabajando.cl/trabajo-ingeniero-electrico',
-      'https://www.mop.gob.cl/concursos-vigentes/'
-    ],
-    miercoles:[
-      'https://cl.indeed.com/q-ingeniero-civil-electricista-l-temuco-empleos.html',
-      'https://www.linkedin.com/jobs/search/?keywords=ingeniero+electricista&location=Araucan%C3%ADa',
-      'https://www.chiletrabajos.cl/encuentra-un-empleo/?2=ingeniero+electrico',
-      'https://www.mop.gob.cl/concursos-vigentes/'
-    ],
-    viernes:[
-      'https://cl.indeed.com/q-ito-electrico-l-araucan%C3%ADa-empleos.html',
-      'https://www.laborum.cl/empleos-area-ingenierias-subarea-ingenieria-electrica-y-electronica.html',
-      'https://www.linkedin.com/jobs/search/?keywords=ingeniero+civil+electricista&location=Chile',
-      'https://www.mop.gob.cl/concursos-vigentes/'
-    ],
+    lunes: ALL,
+    miercoles: ALL,
+    viernes: ALL,
     mop:[
       'https://www.mop.gob.cl/concursos-vigentes/',
-      'https://cl.indeed.com/q-AIF-inspector-fiscal-electrico-empleos.html',
-      'https://www.linkedin.com/jobs/search/?keywords=AIF+ingeniero+electrico+concesiones&location=Chile'
+      'https://cl.indeed.com/q-inspector-fiscal-electrico-concesiones-empleos.html',
+      'https://www.linkedin.com/jobs/search/?keywords=AIF+ingeniero+electricista+concesiones&location=Chile',
+      'https://cl.computrabajo.com/trabajo-de-inspector-fiscal-electrico',
+      'https://cl.jooble.org/trabajo-AIF-inspector-electrico/Chile'
     ],
     mineria:[
-      'https://cl.indeed.com/q-ingeniero-electricista-mineria-empleos.html',
+      'https://cl.indeed.com/q-ingeniero-civil-electricista-mineria-empleos.html',
       'https://www.laborum.cl/empleos-busqueda-ingeniero-electrico-mineria.html',
-      'https://www.linkedin.com/jobs/search/?keywords=ingeniero+electrico+miner%C3%ADa&location=Chile'
+      'https://www.linkedin.com/jobs/search/?keywords=ingeniero+electricista+miner%C3%ADa&location=Chile',
+      'https://cl.computrabajo.com/trabajo-de-ingeniero-electrico-mineria',
+      'https://cl.jooble.org/trabajo-ingeniero-electrico-mineria/Chile'
     ]
   };
-  urls[t].forEach((u,i)=>setTimeout(()=>window.open(u,'_blank'),i*300));
+  urls[t].forEach((u,i)=>setTimeout(()=>window.open(u,'_blank'),i*250));
 }
 
 </script>
