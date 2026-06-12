@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Empleos — Cristián Alarcón</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f17;
+  --surface:#13151f;
+  --surface2:#1a1d2b;
+  --surface3:#21253a;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --text:#e2e4f0;
+  --text2:#8b8fa8;
+  --text3:#555870;
+  --blue:#4f8ef7;
+  --blue2:#1e3a6e;
+  --blue3:#0a1628;
+  --green:#3ecf8e;
+  --green2:#0f2e1e;
+  --amber:#f5a623;
+  --amber2:#2e1f07;
+  --red:#e05c5c;
+  --red2:#2e1010;
+  --purple:#a78bfa;
+  --purple2:#1e1540;
+  --teal:#2dd4bf;
+  --teal2:#0a2420;
+  --r:10px;--r2:14px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 1.5rem}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:12px 0;margin-right:1.5rem;flex-shrink:0}
+.nav-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.nav-brand strong{font-size:13px;font-weight:600;color:var(--text);display:block;line-height:1.2}
+.nav-brand span{font-size:11px;color:var(--text2)}
+.nav-links{display:flex;overflow-x:auto;gap:0}
+.nav-link{padding:14px 14px;font-size:13px;font-weight:500;color:var(--text2);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:color .15s}
+.nav-link:hover{color:var(--text)}
+.nav-link.active{color:var(--blue);border-bottom-color:var(--blue)}
+.nav-right{margin-left:auto;padding-left:1rem;flex-shrink:0}
+.dot-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:500}
+.dot-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}
+
+/* LAYOUT */
+.page{display:none}.page.active{display:block}
+.container{max-width:1080px;margin:0 auto;padding:1.75rem 1.5rem}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2)}
+.card-header{padding:.9rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:13px;font-weight:600;color:var(--text)}
+.card-body{padding:1.1rem 1.25rem}
+
+/* GRIDS */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:580px){.g4,.g3,.g2{grid-template-columns:1fr}}
+
+/* METRIC CARDS */
+.metric{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem}
+.metric-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.metric-value{font-size:20px;font-weight:700;line-height:1.2}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:3px}
+.metric-tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:5px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.b-blue{background:var(--blue2);color:var(--blue)}
+.b-green{background:var(--green2);color:var(--green)}
+.b-amber{background:var(--amber2);color:var(--amber)}
+.b-red{background:var(--red2);color:var(--red)}
+.b-purple{background:var(--purple2);color:var(--purple)}
+.b-teal{background:var(--teal2);color:var(--teal)}
+.b-gray{background:var(--surface3);color:var(--text2)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0a1628 0%,#0f1e38 50%,#0a2420 100%);border:1px solid rgba(79,142,247,.15);border-radius:var(--r2);padding:1.75rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap}
+.hero-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+.hero-info h1{font-size:18px;font-weight:700;margin-bottom:3px}
+.hero-info p{font-size:13px;color:var(--text2);margin-bottom:8px}
+.hero-badges{display:flex;flex-wrap:wrap;gap:5px}
+.hero-right{margin-left:auto;text-align:right}
+.hero-right .val{font-size:26px;font-weight:700;color:var(--blue)}
+.hero-right .lbl{font-size:11px;color:var(--text3)}
+.hero-right .obj{font-size:12px;color:var(--green);margin-top:3px}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
+
+/* SECTION LABEL */
+.slabel{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:block}
+
+/* PROGRESS */
+.prog-item{margin-bottom:12px}
+.prog-header{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px}
+.prog-bg{background:var(--surface3);border-radius:4px;height:7px}
+.prog-fill{height:7px;border-radius:4px}
+
+/* TIMELINE */
+.timeline{list-style:none;padding:0;position:relative}
+.timeline::before{content:'';position:absolute;left:10px;top:6px;bottom:6px;width:1px;background:var(--border2)}
+.tl-item{display:flex;gap:12px;margin-bottom:14px;position:relative}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);border:2px solid var(--bg);margin-top:5px;flex-shrink:0;z-index:1}
+.tl-dot.gray{background:var(--text3)}
+.tl-content strong{font-size:13px;display:block;margin-bottom:2px}
+.tl-content span{font-size:12px;color:var(--text2)}
+
+/* PORTAL CARD */
+.portal-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;text-decoration:none;color:var(--text)}
+.portal-card:hover{border-color:var(--blue);background:var(--blue3)}
+.portal-icon{width:34px;height:34px;border-radius:8px;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.portal-info strong{display:block;font-size:13px;font-weight:600}
+.portal-info span{font-size:11px;color:var(--text2)}
+.portal-arrow{margin-left:auto;color:var(--text3);font-size:16px}
+
+/* OFFER CARD */
+.offer-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.offer-card:hover{border-color:var(--border2)}
+.offer-card.mop{border-color:rgba(245,166,35,.25)}
+.offer-header{padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.offer-logo{width:42px;height:42px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.offer-meta h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.offer-meta p{font-size:12px;color:var(--text2)}
+.offer-right{margin-left:auto;text-align:right;flex-shrink:0}
+.offer-sal{font-size:14px;font-weight:700}
+.offer-sal.ok{color:var(--green)}.offer-sal.warn{color:var(--amber)}.offer-sal.bad{color:var(--red)}
+.offer-body{padding:0 16px 14px}
+.offer-desc{font-size:13px;color:var(--text2);margin-bottom:10px}
+.fit-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fit-label{font-size:12px;color:var(--text2);min-width:80px}
+.fit-bg{flex:1;height:5px;background:var(--surface3);border-radius:3px}
+.fit-fill{height:5px;border-radius:3px}
+.fit-score{font-size:12px;font-weight:700;min-width:30px;text-align:right}
+.offer-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--border);color:var(--text2);background:var(--surface2)}
+.chip.mop-chip{border-color:var(--amber);color:var(--amber);background:var(--amber2);font-weight:600}
+
+/* QUERY PILL */
+.q-pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 11px;font-size:12px;color:var(--text2);display:inline-block;margin:3px}
+
+/* SALARY TABLE */
+.sal-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.sal-row:last-child{border-bottom:none}
+.sal-dot{width:9px;height:9px;border-radius:50%;margin-right:8px;flex-shrink:0}
+
+/* SEARCH TRIGGER BOX */
+.search-box{background:linear-gradient(135deg,#0a1628,#0a1e18);border:1px solid rgba(79,142,247,.2);border-radius:var(--r2);padding:1.5rem;text-align:center;margin-bottom:1.25rem}
+.search-box h2{font-size:17px;font-weight:700;color:var(--blue);margin-bottom:5px}
+.search-box p{font-size:13px;color:var(--text2);margin-bottom:1rem}
+.search-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:all .15s}
+.btn:hover{background:var(--surface3);border-color:var(--border2)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#3a7de0;border-color:#3a7de0}
+.btn-amber{background:var(--amber2);color:var(--amber);border-color:var(--amber)}
+
+/* SEARCH RESULT SUMMARY */
+.result-header{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.result-stat{text-align:center}
+.result-stat .n{font-size:22px;font-weight:700}
+.result-stat .l{font-size:11px;color:var(--text2)}
+
+/* CHART WRAP */
+.chart-wrap{position:relative;width:100%}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:1rem;overflow-x:auto}
+.tab{padding:6px 14px;font-size:12px;font-weight:500;border-radius:var(--r);cursor:pointer;border:1px solid var(--border);color:var(--text2);background:transparent;white-space:nowrap}
+.tab:hover{background:var(--surface2)}
+.tab.active{background:var(--blue2);color:var(--blue);border-color:transparent}
+.tab-panel{display:none}.tab-panel.visible{display:block}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem;color:var(--text2)}
+.empty .icon{font-size:36px;opacity:.3;margin-bottom:10px}
+
+/* CERT CARD */
+.cert-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1.1rem;display:flex;align-items:flex-start;gap:12px}
+.cert-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cert-info strong{font-size:13px;font-weight:600;display:block;margin-bottom:2px}
+.cert-info span{font-size:12px;color:var(--text2)}
+.cert-badge{margin-top:5px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-avatar">CA</div>
+    <div>
+      <strong>Portal Empleos</strong>
+      <span>Cristián Alarcón · Ing. Civil Electricista</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="showPage('dashboard')">Dashboard</div>
+    <div class="nav-link" onclick="showPage('buscar')">Buscar</div>
+    <div class="nav-link" onclick="showPage('ofertas')">Ofertas <span id="oferta-count" style="background:var(--blue2);color:var(--blue);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px;">5</span></div>
+    <div class="nav-link" onclick="showPage('sueldo')">Sueldo</div>
+    <div class="nav-link" onclick="showPage('perfil')">Perfil</div>
+  </div>
+  <div class="nav-right">
+    <div class="dot-badge">Activo</div>
+  </div>
+</nav>
+
+<!-- ═══════════════ DASHBOARD ═══════════════ -->
+<div id="page-dashboard" class="page active">
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-avatar">CA</div>
+    <div class="hero-info">
+      <h1>Cristián Andrés Alarcón Cerda</h1>
+      <p>Ingeniero Civil Electricista · SEC Clase A · Temuco, Araucanía · 9 años exp.</p>
+      <div class="hero-badges">
+        <span class="badge b-blue">⚡ SEC Clase A</span>
+        <span class="badge b-teal">🏗 Evaluador MINVU</span>
+        <span class="badge b-amber">🛣 Objetivo MOP 2026</span>
+        <span class="badge b-purple">🎓 Diplomado Liderazgo Público</span>
+        <span class="badge b-gray">26.217 luminarias</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="val">$1.587.000</div>
+      <div class="lbl">renta líquida actual</div>
+      <div class="obj">▲ objetivo: $2.966.000 liq.</div>
+    </div>
+  </div>
+
+  <div class="g4" style="margin-bottom:1.25rem">
+    <div class="metric">
+      <div class="metric-label">Objetivo honorarios</div>
+      <div class="metric-value" style="color:var(--blue)">$2.966.000</div>
+      <div class="metric-sub">liq. · $3.500.000 bruto</div>
+      <span class="metric-tag" style="background:var(--blue2);color:var(--blue)">+87% vs actual</span>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Piso mínimo</div>
+      <div class="metric-value" style="color:var(--green)">$2.590.000</div>
+      <div class="metric-sub">liq. · $3.055.000 bruto</div>
+      <span class="metric-tag" style="background:var(--green2);color:var(--green)">+63% vs actual</span>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Umbral advertencia</div>
+      <div class="metric-value" style="color:var(--amber)">$2.300.000</div>
+      <div class="metric-sub">liq. · $2.717.000 bruto</div>
+      <span class="metric-tag" style="background:var(--amber2);color:var(--amber)">solo si fit MOP</span>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Objetivo contrato</div>
+      <div class="metric-value" style="color:var(--purple)">$2.374.000</div>
+      <div class="metric-sub">liq. · $3.000.000 bruto</div>
+      <span class="metric-tag" style="background:var(--purple2);color:var(--purple)">+50% vs actual</span>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div class="card">
+      <div class="card-header"><h3>Comparativa salarial</h3></div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:200px"><canvas id="cSalary" role="img" aria-label="Comparativa de rentas"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Empleadores objetivo — prioridad</h3></div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:200px"><canvas id="cEmployers" role="img" aria-label="Empleadores por prioridad"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><h3>Últimas búsquedas</h3></div>
+      <div class="card-body">
+        <ul class="timeline">
+          <li class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>Jueves 12 junio 2026</strong><span>5 ofertas encontradas · 2 dentro de expectativa</span></div></li>
+          <li class="tl-item"><div class="tl-dot gray"></div><div class="tl-content"><strong>Lunes 16 junio 2026</strong><span>Próxima búsqueda programada</span></div></li>
+          <li class="tl-item"><div class="tl-dot gray"></div><div class="tl-content"><strong>Miércoles 18 junio 2026</strong><span>Próxima búsqueda programada</span></div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Criterios de evaluación</h3></div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:140px"><canvas id="cFit" role="img" aria-label="Criterios de evaluación"></canvas></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:9px;height:9px;border-radius:2px;background:#4f8ef7"></span>Relevancia 30%</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:9px;height:9px;border-radius:2px;background:#3ecf8e"></span>Empleador 25%</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:9px;height:9px;border-radius:2px;background:#f5a623"></span>Renta 25%</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:9px;height:9px;border-radius:2px;background:#e05c5c"></span>MOP 20%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════ BUSCAR ═══════════════ -->
+<div id="page-buscar" class="page">
+<div class="container">
+
+  <div class="search-box">
+    <h2>🔍 Lanzar búsqueda de empleos</h2>
+    <p>Selecciona el tipo de búsqueda. Se ejecuta con tu perfil completo en 7 portales.</p>
+    <div class="search-btns">
+      <button class="btn btn-primary" onclick="doSearch('lunes')">📅 Búsqueda Lunes</button>
+      <button class="btn btn-primary" onclick="doSearch('miercoles')">📅 Búsqueda Miércoles</button>
+      <button class="btn btn-primary" onclick="doSearch('viernes')">📅 Búsqueda Viernes</button>
+      <button class="btn" onclick="doSearch('mop')">🛣 Solo MOP / concesiones</button>
+      <button class="btn" onclick="doSearch('mineria')">⚡ Minería / energía</button>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><h3>Portales de búsqueda</h3></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:7px">
+        <a class="portal-card" href="https://cl.indeed.com/q-ingeniero-electrico-l-temuco,-araucan%C3%ADa-empleos.html" target="_blank"><div class="portal-icon">I</div><div class="portal-info"><strong>Indeed.cl</strong><span>Cobertura nacional · alta prioridad</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.laborum.cl/empleos-area-ingenierias-subarea-ingenieria-electrica-y-electronica.html" target="_blank"><div class="portal-icon">L</div><div class="portal-info"><strong>Laborum.cl</strong><span>Portal líder Chile · alta prioridad</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.linkedin.com/jobs/search/?keywords=ingeniero%20electricista&location=Araucan%C3%ADa" target="_blank"><div class="portal-icon" style="color:var(--blue)">in</div><div class="portal-info"><strong>LinkedIn Chile</strong><span>Red profesional · alta prioridad</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.trabajando.cl/trabajo-ingeniero-electrico" target="_blank"><div class="portal-icon">T</div><div class="portal-info"><strong>Trabajando.com</strong><span>Empleos formales · media prioridad</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.chiletrabajos.cl/encuentra-un-empleo/?2=ingeniero+electrico" target="_blank"><div class="portal-icon">C</div><div class="portal-info"><strong>ChileTrabajos.cl</strong><span>Mercado local · media prioridad</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.mop.gob.cl/concursos-vigentes/" target="_blank"><div class="portal-icon" style="color:var(--amber)">MOP</div><div class="portal-info"><strong>MOP Concursos Vigentes</strong><span>Objetivo principal · alta prioridad</span></div><span class="portal-arrow">→</span></a>
+        <a class="portal-card" href="https://www.mercadopublico.cl/Licitacion" target="_blank"><div class="portal-icon">MP</div><div class="portal-info"><strong>Mercado Público</strong><span>Servicios profesionales</span></div><span class="portal-arrow">→</span></a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Queries de búsqueda (10 por sesión)</h3></div>
+      <div class="card-body">
+        <div style="margin-bottom:1rem">
+          <span class="q-pill">ingeniero eléctrico Temuco Araucanía 2026</span>
+          <span class="q-pill">ITO eléctrico Araucanía oferta laboral</span>
+          <span class="q-pill">jefe proyectos eléctricos Temuco</span>
+          <span class="q-pill">inspector técnico eléctrico Araucanía</span>
+          <span class="q-pill">encargado especialidad eléctrica Temuco</span>
+          <span class="q-pill">ingeniero electricista concesión MOP Chile</span>
+          <span class="q-pill">AIF inspector fiscal eléctrico Chile</span>
+          <span class="q-pill">ingeniero eléctrico infraestructura vial Chile</span>
+          <span class="q-pill">especialista eléctrico Araucanía</span>
+          <span class="q-pill">ingeniero civil eléctrico Laborum Temuco</span>
+        </div>
+        <hr>
+        <span class="slabel">señales salariales</span>
+        <div class="sal-row"><span style="display:flex;align-items:center"><span class="sal-dot" style="background:var(--green)"></span>Dentro de expectativa</span><span class="badge b-green">≥ $2.590.000 liq.</span></div>
+        <div class="sal-row"><span style="display:flex;align-items:center"><span class="sal-dot" style="background:var(--amber)"></span>Advertencia</span><span class="badge b-amber">$2.300.000 – $2.589.000</span></div>
+        <div class="sal-row"><span style="display:flex;align-items:center"><span class="sal-dot" style="background:var(--red)"></span>Descartar</span><span class="badge b-red">< $2.300.000 liq.</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════ OFERTAS ═══════════════ -->
+<div id="page-ofertas" class="page">
+<div class="container">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="font-size:16px;font-weight:700">Ofertas encontradas</h2>
+      <p style="font-size:12px;color:var(--text2)">Última búsqueda: jueves 12 junio 2026 — 7 portales, 10 queries</p>
+    </div>
+    <button class="btn btn-primary" onclick="showPage('buscar')">+ Nueva búsqueda</button>
+  </div>
+
+  <div class="result-header">
+    <div class="result-stat"><div class="n" style="color:var(--blue)">5</div><div class="l">Ofertas relevantes</div></div>
+    <div class="result-stat"><div class="n" style="color:var(--green)">2</div><div class="l">Dentro de expectativa</div></div>
+    <div class="result-stat"><div class="n" style="color:var(--amber)">2</div><div class="l">Con advertencia</div></div>
+    <div class="result-stat"><div class="n" style="color:var(--amber)">1</div><div class="l">Alineadas con MOP ⭐</div></div>
+  </div>
+
+  <!-- OFERTA 1 — MOP -->
+  <div class="offer-card mop">
+    <div class="offer-header">
+      <div class="offer-logo" style="background:var(--amber2);color:var(--amber)">MOP</div>
+      <div class="offer-meta">
+        <h4>Profesional Contrata — Concursos Vigentes junio 2026</h4>
+        <p>Ministerio de Obras Públicas · Chile (múltiples regiones)</p>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+          <span class="badge b-amber">⭐ Alineada con objetivo MOP</span>
+          <span class="badge b-blue">Fit: 9/10</span>
+          <span class="badge b-gray">Cierre: 06-07-2026</span>
+        </div>
+      </div>
+      <div class="offer-right">
+        <div class="offer-sal ok">$2.000.000–$3.040.000</div>
+        <div style="font-size:11px;color:var(--text2)">liq. estimado · grado según cargo</div>
+        <span class="badge b-green" style="margin-top:5px">✅ Dentro de expectativa</span>
+      </div>
+    </div>
+    <div class="offer-body">
+      <div class="offer-desc">Concursos abiertos en MOP para profesionales. Proceso activo en Dirección de Planeamiento. Contacto: dp.postulaciones@mop.gov.cl. Ingreso directo al organismo de tu objetivo estratégico principal.</div>
+      <div class="fit-row"><span class="fit-label">Fit perfil</span><div class="fit-bg"><div class="fit-fill" style="width:90%;background:var(--amber)"></div></div><span class="fit-score" style="color:var(--amber)">9/10</span></div>
+      <div class="offer-chips">
+        <span class="chip mop-chip">⭐ Objetivo estratégico</span>
+        <span class="chip">Proyectos MOP certificados</span>
+        <span class="chip">SEC Clase A requerida</span>
+        <a href="https://www.mop.gob.cl/concursos-vigentes/" target="_blank" class="btn btn-amber" style="margin-left:auto;font-size:11px;padding:5px 12px">Ver concursos →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFERTA 2 — CyD Ingeniería -->
+  <div class="offer-card">
+    <div class="offer-header">
+      <div class="offer-logo" style="background:var(--blue2);color:var(--blue)">CyD</div>
+      <div class="offer-meta">
+        <h4>Jefe de Oficina Técnica — ITO Proyectos</h4>
+        <p>CyD Ingeniería · Área Temuco, Araucanía</p>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+          <span class="badge b-teal">Consultora nacional</span>
+          <span class="badge b-blue">Fit: 8/10</span>
+          <span class="badge b-gray">Contrato CdT est.</span>
+        </div>
+      </div>
+      <div class="offer-right">
+        <div class="offer-sal ok">$2.711.000–$3.390.000</div>
+        <div style="font-size:11px;color:var(--text2)">liq. estimado · renta no informada</div>
+        <span class="badge b-green" style="margin-top:5px">✅ Estimado dentro rango</span>
+      </div>
+    </div>
+    <div class="offer-body">
+      <div class="offer-desc">CyD Ingeniería busca Jefe de Oficina Técnica para proyecto ITO en Temuco. Requiere Ing. Civil + mínimo 5 años experiencia. Consultora de escala nacional con contratos MOP — empleador con proyección estratégica real.</div>
+      <div class="fit-row"><span class="fit-label">Fit perfil</span><div class="fit-bg"><div class="fit-fill" style="width:80%;background:var(--blue)"></div></div><span class="fit-score" style="color:var(--blue)">8/10</span></div>
+      <div class="offer-chips">
+        <span class="chip">📍 Temuco</span>
+        <span class="chip">Jefatura técnica</span>
+        <span class="chip">Contratos MOP posibles</span>
+        <a href="https://www.trabajando.cl/trabajo/6074088-jefe-a-de-proyectos-y-o-administrador-a-de-contratos-temuco" target="_blank" class="btn btn-primary" style="margin-left:auto;font-size:11px;padding:5px 12px">Ver oferta →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFERTA 3 — ITO Confidencial -->
+  <div class="offer-card">
+    <div class="offer-header">
+      <div class="offer-logo" style="background:var(--teal2);color:var(--teal)">ITO</div>
+      <div class="offer-meta">
+        <h4>ITO Especialidad Eléctrico</h4>
+        <p>Empresa Confidencial · Temuco, Araucanía</p>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+          <span class="badge b-gray">Empresa confidencial</span>
+          <span class="badge b-blue">Fit: 8/10</span>
+        </div>
+      </div>
+      <div class="offer-right">
+        <div class="offer-sal warn">$2.159.000–$2.711.000</div>
+        <div style="font-size:11px;color:var(--text2)">liq. estimado · renta no informada</div>
+        <span class="badge b-amber" style="margin-top:5px">⚠️ Verificar renta</span>
+      </div>
+    </div>
+    <div class="offer-body">
+      <div class="offer-desc">Inspección técnica de obras eléctricas en Temuco. Perfil habitual: supervisión terreno, revisión EETT, cumplimiento normativa SEC. Si la renta supera $2.9M bruto, es una oferta sólida.</div>
+      <div style="background:var(--amber2);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--amber);margin-bottom:10px">⚠️ Renta no informada — estimar antes de postular. Solicita $3.2M bruto mínimo.</div>
+      <div class="fit-row"><span class="fit-label">Fit perfil</span><div class="fit-bg"><div class="fit-fill" style="width:80%;background:var(--teal)"></div></div><span class="fit-score" style="color:var(--teal)">8/10</span></div>
+      <div class="offer-chips">
+        <span class="chip">📍 Temuco</span>
+        <span class="chip">SEC Clase A</span>
+        <span class="chip">Supervisión terreno</span>
+        <a href="https://cl.trabajo.org/oferta-3829-5dcba0486aca4b375d973ca0420ee2b4" target="_blank" class="btn" style="margin-left:auto;font-size:11px;padding:5px 12px">Ver oferta →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFERTA 4 — C&F Ingeniería -->
+  <div class="offer-card">
+    <div class="offer-header">
+      <div class="offer-logo" style="background:var(--purple2);color:var(--purple)">C&F</div>
+      <div class="offer-meta">
+        <h4>Ingeniero Civil Electricista — Proyectos y Montajes</h4>
+        <p>C&F Ingeniería y Proyectos SpA · Temuco, Araucanía</p>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+          <span class="badge b-gray">Empresa mediana</span>
+          <span class="badge b-blue">Fit: 7/10</span>
+        </div>
+      </div>
+      <div class="offer-right">
+        <div class="offer-sal warn">$2.373.000–$2.966.000</div>
+        <div style="font-size:11px;color:var(--text2)">liq. estimado · renta no informada</div>
+        <span class="badge b-amber" style="margin-top:5px">⚠️ Verificar renta</span>
+      </div>
+    </div>
+    <div class="offer-body">
+      <div class="offer-desc">Empresa de ingeniería con proyectos de instalaciones eléctricas en Temuco. Requiere 5 años de experiencia. Cumples con holgura (9 años). Sin escala MOP, pero puede ser paso estratégico.</div>
+      <div class="fit-row"><span class="fit-label">Fit perfil</span><div class="fit-bg"><div class="fit-fill" style="width:70%;background:var(--purple)"></div></div><span class="fit-score" style="color:var(--purple)">7/10</span></div>
+      <div class="offer-chips">
+        <span class="chip">📍 Temuco</span>
+        <span class="chip">5 años exp. req.</span>
+        <span class="chip">Proyectos eléctricos</span>
+        <a href="https://cl.trabajo.org/oferta-5486-0bd0bada8390fa66a6ada8e238343a47" target="_blank" class="btn" style="margin-left:auto;font-size:11px;padding:5px 12px">Ver oferta →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFERTA 5 — CGE via Adecco -->
+  <div class="offer-card">
+    <div class="offer-header">
+      <div class="offer-logo" style="background:var(--red2);color:var(--red)">CGE</div>
+      <div class="offer-meta">
+        <h4>Ingeniero Eléctrico — Diseño Redes Distribución</h4>
+        <p>Adecco Chile (para CGE Distribución) · La Araucanía</p>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+          <span class="badge b-gray">Distribuidora eléctrica</span>
+          <span class="badge b-blue">Fit: 5/10</span>
+        </div>
+      </div>
+      <div class="offer-right">
+        <div class="offer-sal bad">$1.500.000–$1.700.000</div>
+        <div style="font-size:11px;color:var(--text2)">liq. INFORMADO · muy bajo</div>
+        <span class="badge b-red" style="margin-top:5px">🚫 Muy bajo expectativa</span>
+      </div>
+    </div>
+    <div class="offer-body">
+      <div class="offer-desc">Diseño de redes distribución eléctrica para CGE. Requiere SEC Clase A, 3 años exp. e inglés fluido. CGE es empleador objetivo tuyo, pero la renta informada ($1.5M–$1.7M liq.) está muy por debajo de tu umbral mínimo.</div>
+      <div style="background:var(--red2);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--red);margin-bottom:10px">🚫 Renta informada es menos de la mitad de tu objetivo. Solo considera si hay posibilidad real de negociar al doble.</div>
+      <div class="fit-row"><span class="fit-label">Fit perfil</span><div class="fit-bg"><div class="fit-fill" style="width:50%;background:var(--red)"></div></div><span class="fit-score" style="color:var(--red)">5/10</span></div>
+      <div class="offer-chips">
+        <span class="chip">Inglés fluido req.</span>
+        <span class="chip">SEC Clase A req.</span>
+        <a href="https://cl.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-ingeniero-electrico-la-araucania-en-temuco-DCAEF8AFADA159CC61373E686DCF3405" target="_blank" class="btn" style="margin-left:auto;font-size:11px;padding:5px 12px">Ver oferta →</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface2);border:1px solid rgba(245,166,35,.2);border-radius:var(--r2);padding:1rem 1.25rem;margin-top:1rem">
+    <div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:5px">💡 Recomendación de la semana</div>
+    <p style="font-size:13px;color:var(--text2)"><strong style="color:var(--text)">MOP Concursos Vigentes</strong> — cierre 06 julio 2026. Tienes proyectos MOP certificados reales (Ruta S-40, Plaza Las Banderas DOH), SEC Clase A y Diplomado en Liderazgo Sector Público. Postula antes del 6 de julio. Escribe a dp.postulaciones@mop.gov.cl consultando posiciones para ingenieros eléctricos.</p>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════ SUELDO ═══════════════ -->
+<div id="page-sueldo" class="page">
+<div class="container">
+
+  <div class="g4" style="margin-bottom:1.25rem">
+    <div class="metric">
+      <div class="metric-label">Renta actual</div>
+      <div class="metric-value" style="color:var(--text2)">$1.587.000</div>
+      <div class="metric-sub">liq. · $1.872.000 bruto · honorarios</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Gap al objetivo</div>
+      <div class="metric-value" style="color:var(--blue)">$1.379.000</div>
+      <div class="metric-sub">diferencia mensual líquida</div>
+      <span class="metric-tag" style="background:var(--blue2);color:var(--blue)">+87% de aumento</span>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Gap anual</div>
+      <div class="metric-value" style="color:var(--green)">$16,5M</div>
+      <div class="metric-sub">al año vs objetivo honorarios</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Modalidad actual</div>
+      <div class="metric-value" style="font-size:15px;color:var(--purple)">Honorarios</div>
+      <div class="metric-sub">retención 15,25% · Municipalidad</div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div class="card">
+      <div class="card-header"><h3>Escalera salarial (líquido)</h3></div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:270px"><canvas id="cLadder" role="img" aria-label="Escalera salarial"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Honorarios vs Contrato</h3></div>
+      <div class="card-body">
+        <span class="slabel">modalidad honorarios (×0,8475)</span>
+        <div class="prog-item"><div class="prog-header"><span>Objetivo $3.5M bruto</span><span style="color:var(--blue)">$2.966.000 liq.</span></div><div class="prog-bg"><div class="prog-fill" style="width:100%;background:var(--blue)"></div></div></div>
+        <div class="prog-item"><div class="prog-header"><span>Piso mínimo $3.055M bruto</span><span style="color:var(--green)">$2.590.000 liq.</span></div><div class="prog-bg"><div class="prog-fill" style="width:87%;background:var(--green)"></div></div></div>
+        <div class="prog-item"><div class="prog-header"><span>Umbral advertencia $2.717M bruto</span><span style="color:var(--amber)">$2.300.000 liq.</span></div><div class="prog-bg"><div class="prog-fill" style="width:77%;background:var(--amber)"></div></div></div>
+        <hr>
+        <span class="slabel">modalidad contrato indefinido (×0,80)</span>
+        <div class="prog-item"><div class="prog-header"><span>Objetivo $3.0M bruto</span><span style="color:var(--purple)">$2.374.000 liq.</span></div><div class="prog-bg"><div class="prog-fill" style="width:80%;background:var(--purple)"></div></div></div>
+        <div class="prog-item"><div class="prog-header"><span>Piso mínimo $2.7M bruto</span><span style="color:var(--teal)">$2.130.000 liq.</span></div><div class="prog-bg"><div class="prog-fill" style="width:72%;background:var(--teal)"></div></div></div>
+        <hr>
+        <div style="font-size:12px;color:var(--text2)"><strong style="color:var(--text)">Fórmulas:</strong> Honorarios → bruto × 0,8475 &nbsp;|&nbsp; Contrato → bruto × 0,80 (aprox.)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════ PERFIL ═══════════════ -->
+<div id="page-perfil" class="page">
+<div class="container">
+  <div class="g2">
+    <div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><h3>Datos personales</h3></div>
+        <div class="card-body">
+          <table style="width:100%;font-size:13px;border-collapse:collapse">
+            <tr><td style="color:var(--text2);padding:6px 0;width:40%">Nombre</td><td style="padding:6px 0"><strong>Cristián Andrés Alarcón Cerda</strong></td></tr>
+            <tr><td style="color:var(--text2);padding:6px 0;border-top:1px solid var(--border)">RUT</td><td style="padding:6px 0;border-top:1px solid var(--border)">16.631.918-8</td></tr>
+            <tr><td style="color:var(--text2);padding:6px 0;border-top:1px solid var(--border)">Fecha nacimiento</td><td style="padding:6px 0;border-top:1px solid var(--border)">07 de abril de 1987</td></tr>
+            <tr><td style="color:var(--text2);padding:6px 0;border-top:1px solid var(--border)">Domicilio</td><td style="padding:6px 0;border-top:1px solid var(--border)">Av. Los Trovadores #0501, Temuco</td></tr>
+            <tr><td style="color:var(--text2);padding:6px 0;border-top:1px solid var(--border)">Teléfono</td><td style="padding:6px 0;border-top:1px solid var(--border)">+56 9 6165 6258</td></tr>
+            <tr><td style="color:var(--text2);padding:6px 0;border-top:1px solid var(--border)">Email</td><td style="padding:6px 0;border-top:1px solid var(--border)">cristiano.n45@gmail.com</td></tr>
+            <tr><td style="color:var(--text2);padding:6px 0;border-top:1px solid var(--border)">Disponibilidad</td><td style="padding:6px 0;border-top:1px solid var(--border)">Temuco / Araucanía (ampliable si renta lo justifica)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><h3>Certificados y títulos</h3></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+          <div class="cert-card">
+            <div class="cert-icon" style="background:var(--blue2)">🎓</div>
+            <div class="cert-info">
+              <strong>Ingeniero Civil Electricista</strong>
+              <span>Universidad de La Frontera · 09/08/2017 · Resolución Exenta N°160/17</span>
+              <div class="cert-badge"><span class="badge b-blue">Nota 6.0 — Distinción Máxima</span></div>
+            </div>
+          </div>
+          <div class="cert-card">
+            <div class="cert-icon" style="background:var(--purple2)">📜</div>
+            <div class="cert-info">
+              <strong>Diplomado en Liderazgo para el Sector Público</strong>
+              <span>U. Autónoma de Chile · 06/01/2025 al 24/06/2025 · 390 horas</span>
+              <div class="cert-badge"><span class="badge b-purple">Nota 6.8</span></div>
+            </div>
+          </div>
+          <div class="cert-card">
+            <div class="cert-icon" style="background:var(--amber2)">⚡</div>
+            <div class="cert-info">
+              <strong>Licencia de Instalador Eléctrico Clase A</strong>
+              <span>Superintendencia de Electricidad y Combustibles (SEC) · Vigente</span>
+              <div class="cert-badge"><span class="badge b-amber">Patente profesional — vence 30/06/2026</span></div>
+            </div>
+          </div>
+          <div class="cert-card">
+            <div class="cert-icon" style="background:var(--teal2)">🏗</div>
+            <div class="cert-info">
+              <strong>Evaluador Energético para Calificación de Viviendas</strong>
+              <span>Ministerio de Vivienda y Urbanismo (MINVU) · Habilitado</span>
+              <div class="cert-badge"><span class="badge b-teal">MINVU habilitado</span></div>
+            </div>
+          </div>
+          <div class="cert-card">
+            <div class="cert-icon" style="background:var(--surface3)">📋</div>
+            <div class="cert-info">
+              <strong>Certificado de Experiencia — 26.217 luminarias</strong>
+              <span>I. Municipalidad de Temuco · Dir. Operaciones · firmado mayo 2024</span>
+              <div class="cert-badge"><span class="badge b-gray">Miguel Ángel Acuña Emhart — Director de Operaciones</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Objetivo estratégico</h3></div>
+        <div class="card-body">
+          <div style="background:var(--amber2);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;font-size:13px;color:var(--amber);margin-bottom:10px"><strong>Meta 2026:</strong> Ingresar al MOP como funcionario, consultor o vía AIF/concesiones. Construir trayectoria en infraestructura vial, concesiones y grandes proyectos de escala nacional.</div>
+          <p style="font-size:13px;color:var(--text2)">No busca solo más dinero — busca proyección, responsabilidad mayor y empleadores de escala.</p>
+        </div>
+      </div>
+
+    </div>
+    <div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><h3>Experiencia laboral</h3></div>
+        <div class="card-body">
+          <ul class="timeline">
+            <li class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>Municipalidad de Temuco — SECPLA (julio 2025–actualidad)</strong><span>Ing. Especialista Eléctrico · Proyectos Urbanos Comunitarios · diseño instalaciones eléctricas, alumbrado público, espacios públicos</span></div></li>
+            <li class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>Municipalidad de Temuco — Dir. Operaciones (julio 2018–junio 2025)</strong><span>Catastro 26.217 luminarias, EETT, presupuestos, ArcGIS, inspección obras energéticas, proyectos MINVU/MOP/SUBDERE</span></div></li>
+            <li class="tl-item"><div class="tl-dot gray"></div><div class="tl-content"><strong>RILEC Ingeniería e Inversiones Ltda. (nov 2017–jun 2018)</strong><span>Supervisor obras MT/BT · dirección equipos, inspección, control de calidad</span></div></li>
+            <li class="tl-item"><div class="tl-dot gray"></div><div class="tl-content"><strong>SGS SIGA ING. (ago 2016–jul 2017)</strong><span>Proyectos iluminación vial, soterramientos BT/MT, DIALux, AutoCAD · Tema de título: "Sistema Iluminación Vial Autónomo Fotovoltaico"</span></div></li>
+            <li class="tl-item"><div class="tl-dot gray"></div><div class="tl-content"><strong>E Y D Ingeniería Eléctrica (2010–2015, temporadas)</strong><span>Técnico eléctrico en mantención proyectos BT</span></div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><h3>Proyectos certificados destacados</h3></div>
+        <div class="card-body" style="font-size:12px;color:var(--text2)">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;gap:8px;align-items:flex-start"><span class="badge b-amber" style="flex-shrink:0">MOP</span><span><strong style="color:var(--text)">Mejoramiento Iluminación Ruta S-40</strong> — Dirección de Vialidad MOP · 5.000 m</span></div>
+            <div style="display:flex;gap:8px;align-items:flex-start"><span class="badge b-amber" style="flex-shrink:0">MOP</span><span><strong style="color:var(--text)">Mejoramiento Plaza Las Banderas</strong> — Dirección de Obras Hidráulicas MOP · 1.000 m²</span></div>
+            <div style="display:flex;gap:8px;align-items:flex-start"><span class="badge b-teal" style="flex-shrink:0">MINVU</span><span><strong style="color:var(--text)">Mejoramiento Av. Pedro de Valdivia</strong> — SERVIU Araucanía · 4.500 m</span></div>
+            <div style="display:flex;gap:8px;align-items:flex-start"><span class="badge b-teal" style="flex-shrink:0">MINVU</span><span><strong style="color:var(--text)">Mejoramiento Av. Luis Durand</strong> — SERVIU Araucanía · 3.915 m</span></div>
+            <div style="display:flex;gap:8px;align-items:flex-start"><span class="badge b-teal" style="flex-shrink:0">MINVU</span><span><strong style="color:var(--text)">Ciclovías Balmaceda-Prieto Norte-Fco Salazar</strong> — SERVIU · 2.031 m</span></div>
+            <div style="display:flex;gap:8px;align-items:flex-start"><span class="badge b-blue" style="flex-shrink:0">SUBDERE</span><span><strong style="color:var(--text)">Portal San Francisco</strong> — Área verde 23.452 m² · 2020</span></div>
+            <div style="display:flex;gap:8px;align-items:flex-start"><span class="badge b-gray" style="flex-shrink:0">MTE</span><span><strong style="color:var(--text)">Parque Pedro de Valdivia</strong> — 22.000 m² · 2024</span></div>
+          </div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);color:var(--text3)">Certificado por Director de Operaciones Municipalidad de Temuco — enero 2025. Total: +20 proyectos documentados (2018–2024).</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Competencias técnicas</h3></div>
+        <div class="card-body">
+          <div class="prog-item"><div class="prog-header"><span>DIALux</span><span style="color:var(--blue)">Avanzado</span></div><div class="prog-bg"><div class="prog-fill" style="width:95%;background:var(--blue)"></div></div></div>
+          <div class="prog-item"><div class="prog-header"><span>MS Project / Office</span><span style="color:var(--green)">Avanzado</span></div><div class="prog-bg"><div class="prog-fill" style="width:88%;background:var(--green)"></div></div></div>
+          <div class="prog-item"><div class="prog-header"><span>AutoCAD</span><span style="color:var(--teal)">Intermedio</span></div><div class="prog-bg"><div class="prog-fill" style="width:70%;background:var(--teal)"></div></div></div>
+          <div class="prog-item"><div class="prog-header"><span>ArcGIS (ESRI)</span><span style="color:var(--purple)">Intermedio</span></div><div class="prog-bg"><div class="prog-fill" style="width:65%;background:var(--purple)"></div></div></div>
+          <div class="prog-item"><div class="prog-header"><span>DIgSILENT / PSIM</span><span style="color:var(--text2)">Básico</span></div><div class="prog-bg"><div class="prog-fill" style="width:35%;background:var(--text3)"></div></div></div>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:5px">
+            <span class="badge b-gray">DS N°8/2019</span><span class="badge b-gray">RIC</span><span class="badge b-gray">NCh Elec.</span><span class="badge b-gray">SEC</span><span class="badge b-gray">DS N°1/2022</span><span class="badge b-gray">MATLAB</span><span class="badge b-gray">C++</span><span class="badge b-gray">SCADA</span><span class="badge b-gray">Inglés intermedio</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const map={dashboard:0,buscar:1,ofertas:2,sueldo:3,perfil:4};
+  if(map[id]!==undefined) document.querySelectorAll('.nav-link')[map[id]].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function doSearch(t){
+  const m={
+    lunes:'Lunes de búsqueda — ejecuta la búsqueda completa de ofertas laborales para ingeniero civil electricista en Araucanía y Chile',
+    miercoles:'Miércoles de búsqueda — ejecuta la búsqueda completa de ofertas laborales para ingeniero civil electricista en Araucanía y Chile',
+    viernes:'Viernes de búsqueda — ejecuta la búsqueda completa de ofertas laborales para ingeniero civil electricista en Araucanía y Chile',
+    mop:'Busca ofertas MOP, AIF concesiones o consultoras ingeniería en Chile para ingeniero civil electricista — prioriza objetivo MOP',
+    mineria:'Busca ofertas para ingeniero civil electricista en minería o energía renovable Chile con renta sobre $3 millones bruto'
+  };
+  alert('Copia este mensaje y pégalo en Claude:\n\n'+m[t]);
+}
+
+const tc='rgba(255,255,255,0.45)';
+const gc='rgba(255,255,255,0.06)';
+
+new Chart(document.getElementById('cSalary'),{
+  type:'bar',
+  data:{labels:['Actual','Advertencia','Piso mín.','Obj. CdT','Obj. hon.'],datasets:[{data:[1587000,2300000,2590000,2374000,2966000],backgroundColor:['#555870','#f5a623','#3ecf8e','#a78bfa','#4f8ef7'],borderRadius:7,borderSkipped:false}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toLocaleString('es-CL')+' liq.'}}},scales:{x:{ticks:{color:tc,font:{size:11}},grid:{display:false},border:{display:false}},y:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:tc,font:{size:11}},grid:{color:gc},border:{display:false}}}}
+});
+
+new Chart(document.getElementById('cEmployers'),{
+  type:'bar',
+  data:{labels:['MOP','AIF','Consultoras','CGE/Saesa','Constructoras','Minería','Renovable','MINVU'],datasets:[{data:[10,9,8,7,6,5,4,3],backgroundColor:['#f5a623','#3ecf8e','#a78bfa','#4f8ef7','#2dd4bf','#e05c5c','#3ecf8e','#555870'],borderRadius:5,borderSkipped:false}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Prioridad '+c.parsed.x+'/10'}}},scales:{x:{min:0,max:10,ticks:{color:tc,font:{size:11}},grid:{color:gc},border:{display:false}},y:{ticks:{color:tc,font:{size:11}},grid:{display:false},border:{display:false}}}}
+});
+
+new Chart(document.getElementById('cFit'),{
+  type:'doughnut',
+  data:{labels:['Relevancia 30%','Empleador 25%','Renta 25%','MOP 20%'],datasets:[{data:[30,25,25,20],backgroundColor:['#4f8ef7','#3ecf8e','#f5a623','#e05c5c'],borderWidth:0}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label}}},cutout:'62%'}
+});
+
+new Chart(document.getElementById('cLadder'),{
+  type:'bar',
+  data:{labels:['Actual','Adv.','Piso hon.','Piso CdT','Obj. CdT','Obj. hon.'],datasets:[{data:[1587000,2300000,2590000,2130000,2374000,2966000],backgroundColor:['#555870','#f5a623','#3ecf8e','#2dd4bf','#a78bfa','#4f8ef7'],borderRadius:7,borderSkipped:false}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toLocaleString('es-CL')+' liq.'}}},scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false},border:{display:false}},y:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:tc,font:{size:11}},grid:{color:gc},border:{display:false}}}}
+});
+</script>
+</body>
+</html>
