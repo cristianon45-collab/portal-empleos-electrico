@@ -3,8 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal Empleos — Cristián Alarcón</title>
+<title>Portal Empleos — Acceso Privado</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+#login-screen{position:fixed;inset:0;background:#0d0f17;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:0}
+.login-box{background:#13151f;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center}
+.login-logo{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#4f8ef7,#2dd4bf);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 1.25rem}
+.login-box h2{font-size:17px;font-weight:700;color:#e2e4f0;margin-bottom:4px}
+.login-box p{font-size:13px;color:#8b8fa8;margin-bottom:1.5rem}
+.login-box input{width:100%;background:#1a1d2b;border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:11px 14px;font-size:14px;color:#e2e4f0;outline:none;margin-bottom:.75rem;letter-spacing:.05em}
+.login-box input:focus{border-color:#4f8ef7}
+.login-box button{width:100%;background:#4f8ef7;color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer}
+.login-box button:hover{background:#3a7de0}
+.login-error{color:#e05c5c;font-size:12px;margin-top:.5rem;display:none}
+.login-box .hint{font-size:11px;color:rgba(255,255,255,0.2);margin-top:1rem}
+</style>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -200,6 +213,19 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
 </head>
 <body>
 
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">CA</div>
+    <h2>Portal Empleos</h2>
+    <p>Acceso privado — ingresa tu contraseña</p>
+    <input type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button onclick="checkPwd()">Ingresar →</button>
+    <div class="login-error" id="pwd-error">Contraseña incorrecta</div>
+    <div class="hint">Portal privado de Cristián Alarcón</div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
 <nav>
   <div class="nav-brand">
     <div class="nav-avatar">CA</div>
@@ -752,32 +778,41 @@ function doSearch(t){
   alert('Copia este mensaje y pégalo en Claude:\n\n'+m[t]);
 }
 
-const tc='rgba(255,255,255,0.45)';
-const gc='rgba(255,255,255,0.06)';
+</script>
+</div><!-- /app -->
 
-new Chart(document.getElementById('cSalary'),{
-  type:'bar',
-  data:{labels:['Actual','Advertencia','Piso mín.','Obj. CdT','Obj. hon.'],datasets:[{data:[1587000,2300000,2590000,2374000,2966000],backgroundColor:['#555870','#f5a623','#3ecf8e','#a78bfa','#4f8ef7'],borderRadius:7,borderSkipped:false}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toLocaleString('es-CL')+' liq.'}}},scales:{x:{ticks:{color:tc,font:{size:11}},grid:{display:false},border:{display:false}},y:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:tc,font:{size:11}},grid:{color:gc},border:{display:false}}}}
-});
+<script>
+const HASH='c0b7cf6a422e6aaa7238115eb71430159923ecf1c4b971c6786f9a07b222c4fe';
+async function checkPwd(){
+  const val=document.getElementById('pwd-input').value;
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(val));
+  const hex=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hex===HASH){
+    sessionStorage.setItem('auth','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initCharts();
+  } else {
+    document.getElementById('pwd-error').style.display='block';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
+  }
+}
+if(sessionStorage.getItem('auth')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.addEventListener('DOMContentLoaded',initCharts);
+}
+document.getElementById('pwd-input').focus();
 
-new Chart(document.getElementById('cEmployers'),{
-  type:'bar',
-  data:{labels:['MOP','AIF','Consultoras','CGE/Saesa','Constructoras','Minería','Renovable','MINVU'],datasets:[{data:[10,9,8,7,6,5,4,3],backgroundColor:['#f5a623','#3ecf8e','#a78bfa','#4f8ef7','#2dd4bf','#e05c5c','#3ecf8e','#555870'],borderRadius:5,borderSkipped:false}]},
-  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Prioridad '+c.parsed.x+'/10'}}},scales:{x:{min:0,max:10,ticks:{color:tc,font:{size:11}},grid:{color:gc},border:{display:false}},y:{ticks:{color:tc,font:{size:11}},grid:{display:false},border:{display:false}}}}
-});
-
-new Chart(document.getElementById('cFit'),{
-  type:'doughnut',
-  data:{labels:['Relevancia 30%','Empleador 25%','Renta 25%','MOP 20%'],datasets:[{data:[30,25,25,20],backgroundColor:['#4f8ef7','#3ecf8e','#f5a623','#e05c5c'],borderWidth:0}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label}}},cutout:'62%'}
-});
-
-new Chart(document.getElementById('cLadder'),{
-  type:'bar',
-  data:{labels:['Actual','Adv.','Piso hon.','Piso CdT','Obj. CdT','Obj. hon.'],datasets:[{data:[1587000,2300000,2590000,2130000,2374000,2966000],backgroundColor:['#555870','#f5a623','#3ecf8e','#2dd4bf','#a78bfa','#4f8ef7'],borderRadius:7,borderSkipped:false}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toLocaleString('es-CL')+' liq.'}}},scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false},border:{display:false}},y:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:tc,font:{size:11}},grid:{color:gc},border:{display:false}}}}
-});
+function initCharts(){
+  const tc='rgba(255,255,255,0.45)';
+  const gc='rgba(255,255,255,0.06)';
+  new Chart(document.getElementById('cSalary'),{type:'bar',data:{labels:['Actual','Advertencia','Piso mín.','Obj. CdT','Obj. hon.'],datasets:[{data:[1587000,2300000,2590000,2374000,2966000],backgroundColor:['#555870','#f5a623','#3ecf8e','#a78bfa','#4f8ef7'],borderRadius:7,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toLocaleString('es-CL')+' liq.'}}},scales:{x:{ticks:{color:tc,font:{size:11}},grid:{display:false},border:{display:false}},y:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:tc,font:{size:11}},grid:{color:gc},border:{display:false}}}}});
+  new Chart(document.getElementById('cEmployers'),{type:'bar',data:{labels:['MOP','AIF','Consultoras','CGE/Saesa','Constructoras','Minería','Renovable','MINVU'],datasets:[{data:[10,9,8,7,6,5,4,3],backgroundColor:['#f5a623','#3ecf8e','#a78bfa','#4f8ef7','#2dd4bf','#e05c5c','#3ecf8e','#555870'],borderRadius:5,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Prioridad '+c.parsed.x+'/10'}}},scales:{x:{min:0,max:10,ticks:{color:tc,font:{size:11}},grid:{color:gc},border:{display:false}},y:{ticks:{color:tc,font:{size:11}},grid:{display:false},border:{display:false}}}}});
+  new Chart(document.getElementById('cFit'),{type:'doughnut',data:{labels:['Relevancia 30%','Empleador 25%','Renta 25%','MOP 20%'],datasets:[{data:[30,25,25,20],backgroundColor:['#4f8ef7','#3ecf8e','#f5a623','#e05c5c'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label}}},cutout:'62%'}});
+  new Chart(document.getElementById('cLadder'),{type:'bar',data:{labels:['Actual','Adv.','Piso hon.','Piso CdT','Obj. CdT','Obj. hon.'],datasets:[{data:[1587000,2300000,2590000,2130000,2374000,2966000],backgroundColor:['#555870','#f5a623','#3ecf8e','#2dd4bf','#a78bfa','#4f8ef7'],borderRadius:7,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toLocaleString('es-CL')+' liq.'}}},scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false},border:{display:false}},y:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:tc,font:{size:11}},grid:{color:gc},border:{display:false}}}}});
+}
 </script>
 </body>
 </html>
