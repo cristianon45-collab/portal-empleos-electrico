@@ -768,14 +768,37 @@ function showPage(id){
 }
 
 function doSearch(t){
-  const m={
-    lunes:'Lunes de búsqueda — ejecuta la búsqueda completa de ofertas laborales para ingeniero civil electricista en Araucanía y Chile',
-    miercoles:'Miércoles de búsqueda — ejecuta la búsqueda completa de ofertas laborales para ingeniero civil electricista en Araucanía y Chile',
-    viernes:'Viernes de búsqueda — ejecuta la búsqueda completa de ofertas laborales para ingeniero civil electricista en Araucanía y Chile',
-    mop:'Busca ofertas MOP, AIF concesiones o consultoras ingeniería en Chile para ingeniero civil electricista — prioriza objetivo MOP',
-    mineria:'Busca ofertas para ingeniero civil electricista en minería o energía renovable Chile con renta sobre $3 millones bruto'
+  const urls={
+    lunes:[
+      'https://cl.indeed.com/q-ingeniero-electrico-l-temuco,-araucan%C3%ADa-empleos.html',
+      'https://www.laborum.cl/empleos-busqueda-ingeniero-electrico.html',
+      'https://www.trabajando.cl/trabajo-ingeniero-electrico',
+      'https://www.mop.gob.cl/concursos-vigentes/'
+    ],
+    miercoles:[
+      'https://cl.indeed.com/q-ingeniero-civil-electricista-l-temuco-empleos.html',
+      'https://www.linkedin.com/jobs/search/?keywords=ingeniero+electricista&location=Araucan%C3%ADa',
+      'https://www.chiletrabajos.cl/encuentra-un-empleo/?2=ingeniero+electrico',
+      'https://www.mop.gob.cl/concursos-vigentes/'
+    ],
+    viernes:[
+      'https://cl.indeed.com/q-ito-electrico-l-araucan%C3%ADa-empleos.html',
+      'https://www.laborum.cl/empleos-area-ingenierias-subarea-ingenieria-electrica-y-electronica.html',
+      'https://www.linkedin.com/jobs/search/?keywords=ingeniero+civil+electricista&location=Chile',
+      'https://www.mop.gob.cl/concursos-vigentes/'
+    ],
+    mop:[
+      'https://www.mop.gob.cl/concursos-vigentes/',
+      'https://cl.indeed.com/q-AIF-inspector-fiscal-electrico-empleos.html',
+      'https://www.linkedin.com/jobs/search/?keywords=AIF+ingeniero+electrico+concesiones&location=Chile'
+    ],
+    mineria:[
+      'https://cl.indeed.com/q-ingeniero-electricista-mineria-empleos.html',
+      'https://www.laborum.cl/empleos-busqueda-ingeniero-electrico-mineria.html',
+      'https://www.linkedin.com/jobs/search/?keywords=ingeniero+electrico+miner%C3%ADa&location=Chile'
+    ]
   };
-  alert('Copia este mensaje y pégalo en Claude:\n\n'+m[t]);
+  urls[t].forEach((u,i)=>setTimeout(()=>window.open(u,'_blank'),i*300));
 }
 
 </script>
