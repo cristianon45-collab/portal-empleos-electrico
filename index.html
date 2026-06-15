@@ -162,6 +162,22 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
 .filter-pill:hover{background:var(--surface2)}
 .filter-pill.active{background:var(--blue2);color:var(--blue);border-color:transparent}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
+.status-row{display:flex;align-items:center;gap:8px;padding:8px 16px 0;flex-wrap:wrap}
+.status-label{font-size:11px;color:var(--text3);font-weight:500;white-space:nowrap}
+.status-btn{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s;white-space:nowrap}
+.status-btn:hover{background:var(--surface2)}
+.status-btn.s-sin-postular.active{background:var(--surface3);color:var(--text2);border-color:var(--text3)}
+.status-btn.s-postulado.active{background:var(--blue2);color:var(--blue);border-color:var(--blue)}
+.status-btn.s-en-proceso.active{background:var(--amber2);color:var(--amber);border-color:var(--amber)}
+.status-btn.s-rechazado.active{background:var(--red2);color:var(--red);border-color:var(--red)}
+.status-btn.s-oferta-recibida.active{background:var(--green2);color:var(--green);border-color:var(--green)}
+.notes-area{padding:6px 16px 12px;display:none}
+.notes-area textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--text);resize:vertical;min-height:60px;font-family:inherit;outline:none}
+.notes-area textarea:focus{border-color:var(--blue)}
+.notes-area textarea::placeholder{color:var(--text3)}
+.notes-toggle{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 7px;border-radius:5px;border:1px solid var(--border);background:transparent;transition:all .15s;line-height:1.4}
+.notes-toggle:hover{color:var(--text2);background:var(--surface2)}
+.notes-toggle.has-notes{color:var(--teal);border-color:var(--teal);background:var(--teal2)}
 </style>
 </head>
 <body>
@@ -312,14 +328,17 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
   <div class="result-header">
     <div class="result-stat"><div class="n" id="stat-total" style="color:var(--blue)">0</div><div class="l">Total ofertas</div></div>
     <div class="result-stat"><div class="n" id="stat-ok" style="color:var(--green)">0</div><div class="l">Dentro de expectativa</div></div>
-    <div class="result-stat"><div class="n" id="stat-warn" style="color:var(--amber)">0</div><div class="l">Con advertencia</div></div>
-    <div class="result-stat"><div class="n" id="stat-starred" style="color:var(--amber)">0</div><div class="l">⭐ En seguimiento</div></div>
+    <div class="result-stat"><div class="n" id="stat-postulado" style="color:var(--blue)">0</div><div class="l">Postuladas</div></div>
+    <div class="result-stat"><div class="n" id="stat-proceso" style="color:var(--amber)">0</div><div class="l">En proceso</div></div>
+    <div class="result-stat"><div class="n" id="stat-starred" style="color:var(--amber)">0</div><div class="l">⭐ Seguimiento</div></div>
   </div>
   <div class="filter-bar">
     <span style="font-size:12px;color:var(--text3);font-weight:500">Filtrar:</span>
     <button class="filter-pill active" onclick="setFilter('all',this)">Todas</button>
     <button class="filter-pill" onclick="setFilter('starred',this)">⭐ Seguimiento</button>
     <button class="filter-pill" onclick="setFilter('ok',this)">✅ Dentro expectativa</button>
+    <button class="filter-pill" onclick="setFilter('postulado',this)">📤 Postuladas</button>
+    <button class="filter-pill" onclick="setFilter('en-proceso',this)">🔄 En proceso</button>
     <button class="filter-pill" onclick="setFilter('deadline',this)">📅 Con fecha cierre</button>
   </div>
   <div id="offer-list"></div>
@@ -489,13 +508,30 @@ const SEED=[
   {id:'cge-adecco',title:'Ingeniero Eléctrico — Diseño Redes Distribución',company:'Adecco Chile (para CGE Distribución)',location:'La Araucanía',salary:'$1.500.000–$1.700.000 liq. INFORMADO',salStatus:'bad',description:'Diseño de redes distribución eléctrica para CGE. Requiere SEC Clase A, 3 años exp. e inglés fluido. CGE es empleador objetivo tuyo, pero la renta informada está muy por debajo de tu umbral mínimo.',warning:'🚫 Renta informada es menos de la mitad de tu objetivo. Solo considera si hay posibilidad real de negociar al doble.',fit:5,fitColor:'var(--red)',url:'https://cl.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-ingeniero-electrico-la-araucania-en-temuco-DCAEF8AFADA159CC61373E686DCF3405',starred:false,deadline:null,addedDate:'2026-06-12',logoText:'CGE',logoStyle:'background:var(--red2);color:var(--red)',type:'normal',salBadge:'🚫 Muy bajo expectativa',salBadgeCls:'b-red',chips:['Inglés fluido req.','SEC Clase A req.'],topBadges:[{t:'Distribuidora eléctrica',c:'b-gray'},{t:'Fit: 5/10',c:'b-blue'}]}
 ];
 let offers=[],currentFilter='all';
-function loadOffers(){const r=localStorage.getItem('emp_v2');if(r){try{offers=JSON.parse(r);}catch{offers=JSON.parse(JSON.stringify(SEED));}}else{offers=JSON.parse(JSON.stringify(SEED));}}
+const STATUS_LABELS={'sin-postular':'Sin postular','postulado':'Postulado','en-proceso':'En proceso','rechazado':'Rechazado','oferta-recibida':'Oferta recibida'};
+function loadOffers(){
+  const r=localStorage.getItem('emp_v2');
+  if(r){try{offers=JSON.parse(r);}catch{offers=JSON.parse(JSON.stringify(SEED));}}
+  else{offers=JSON.parse(JSON.stringify(SEED));}
+  offers.forEach(o=>{if(!o.status)o.status='sin-postular';if(o.notes===undefined)o.notes='';});
+}
 function saveOffers(){localStorage.setItem('emp_v2',JSON.stringify(offers));}
-function getFiltered(){if(currentFilter==='all')return offers;if(currentFilter==='starred')return offers.filter(o=>o.starred);if(currentFilter==='ok')return offers.filter(o=>o.salStatus==='ok');if(currentFilter==='deadline')return offers.filter(o=>o.deadline);return offers;}
+function getFiltered(){
+  if(currentFilter==='all')return offers;
+  if(currentFilter==='starred')return offers.filter(o=>o.starred);
+  if(currentFilter==='ok')return offers.filter(o=>o.salStatus==='ok');
+  if(currentFilter==='deadline')return offers.filter(o=>o.deadline);
+  if(currentFilter==='postulado')return offers.filter(o=>o.status==='postulado');
+  if(currentFilter==='en-proceso')return offers.filter(o=>o.status==='en-proceso');
+  return offers;
+}
 function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderOffers();}
 function toggleStar(id){const o=offers.find(x=>x.id===id);if(o){o.starred=!o.starred;saveOffers();renderOffers();updateCount();}}
 function deleteOffer(id){if(!confirm('¿Eliminar esta oferta?'))return;offers=offers.filter(x=>x.id!==id);saveOffers();renderOffers();updateCount();}
 function updateDeadline(id,val){const o=offers.find(x=>x.id===id);if(o){o.deadline=val||null;saveOffers();renderAlerts();}}
+function updateStatus(id,val){const o=offers.find(x=>x.id===id);if(o){o.status=val;saveOffers();renderOffers();}}
+function updateNotes(id,val){const o=offers.find(x=>x.id===id);if(o){o.notes=val;saveOffers();}}
+function toggleNotes(id){const el=document.getElementById('notes-'+id);if(!el)return;const vis=el.style.display==='block';el.style.display=vis?'none':'block';if(!vis)el.querySelector('textarea').focus();}
 function updateCount(){document.getElementById('oferta-count').textContent=offers.length;}
 function daysUntil(d){if(!d)return null;const n=new Date();n.setHours(0,0,0,0);const dd=new Date(d+'T00:00:00');dd.setHours(0,0,0,0);return Math.round((dd-n)/86400000);}
 function fmtDate(d){if(!d)return '';return new Date(d+'T00:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'});}
@@ -514,7 +550,8 @@ function renderAlerts(){
 function renderStats(){
   document.getElementById('stat-total').textContent=offers.length;
   document.getElementById('stat-ok').textContent=offers.filter(o=>o.salStatus==='ok').length;
-  document.getElementById('stat-warn').textContent=offers.filter(o=>o.salStatus==='warn').length;
+  document.getElementById('stat-postulado').textContent=offers.filter(o=>o.status==='postulado').length;
+  document.getElementById('stat-proceso').textContent=offers.filter(o=>o.status==='en-proceso').length;
   document.getElementById('stat-starred').textContent=offers.filter(o=>o.starred).length;
 }
 function renderOffers(){
@@ -529,6 +566,9 @@ function renderOffers(){
     const tb=(o.topBadges||[]).map(b=>'<span class="badge '+b.c+'">'+b.t+'</span>').join('');
     const ch=(o.chips||[]).map(c=>'<span class="chip'+(c.includes('⭐')?' mop-chip':'')+' ">'+c+'</span>').join('');
     const eid=o.id;
+    const st=o.status||'sin-postular';
+    const stBtns=Object.entries(STATUS_LABELS).map(([k,v])=>'<button class="status-btn s-'+k+(st===k?' active':'')+'" onclick="updateStatus(\''+eid+'\',\''+k+'\')">'+v+'</button>').join('');
+    const hasNotes=o.notes&&o.notes.trim().length>0;
     return '<div class="offer-card'+(o.type==='mop'?' mop':'')+(o.starred?' starred-card':'')+'">'
       +'<div class="offer-header">'
         +'<div class="offer-logo" style="'+o.logoStyle+'">'+o.logoText+'</div>'
@@ -537,6 +577,7 @@ function renderOffers(){
         +'<div class="offer-right"><div class="offer-sal '+o.salStatus+'">'+o.salary+'</div>'
           +'<span class="badge '+o.salBadgeCls+'" style="margin-top:5px">'+o.salBadge+'</span></div>'
       +'</div>'
+      +'<div class="status-row"><span class="status-label">Estado:</span>'+stBtns+'</div>'
       +'<div class="offer-body">'
         +'<div class="offer-desc">'+o.description+'</div>'+wb
         +'<div class="fit-row"><span class="fit-label">Fit perfil</span><div class="fit-bg"><div class="fit-fill" style="width:'+o.fit*10+'%;background:'+o.fitColor+'"></div></div><span class="fit-score" style="color:'+o.fitColor+'">'+o.fit+'/10</span></div>'
@@ -544,12 +585,17 @@ function renderOffers(){
           +'<div class="offer-actions">'
             +'<label style="font-size:11px;color:var(--text3);white-space:nowrap">Cierre:</label>'
             +'<input type="date" value="'+(o.deadline||'')+'" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:11px;color:var(--text2);outline:none;width:130px" onchange="updateDeadline(\''+eid+'\',this.value)" title="Fecha de cierre">'
+            +'<button class="notes-toggle'+(hasNotes?' has-notes':'')+'" onclick="toggleNotes(\''+eid+'\')" title="Notas privadas">📝'+(hasNotes?' Notas':' Notas')+'</button>'
             +'<button class="btn-icon'+(o.starred?' starred':'')+'" onclick="toggleStar(\''+eid+'\')" title="'+(o.starred?'Quitar':'Agregar')+' seguimiento">⭐</button>'
             +(o.url?'<a href="'+o.url+'" target="_blank" class="btn btn-primary" style="font-size:11px;padding:5px 12px">Ver →</a>':'')
             +'<button class="btn-icon danger" onclick="deleteOffer(\''+eid+'\')" title="Eliminar oferta">🗑</button>'
           +'</div>'
         +'</div>'
-      +'</div></div>';
+      +'</div>'
+      +'<div class="notes-area" id="notes-'+eid+'">'
+        +'<textarea placeholder="Notas privadas: contacto, resultado de llamada, fecha entrevista, impresiones..." onchange="updateNotes(\''+eid+'\',this.value)">'+((o.notes||'').replace(/</g,'&lt;'))+'</textarea>'
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 function openAddModal(){
