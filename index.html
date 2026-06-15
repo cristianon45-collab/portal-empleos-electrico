@@ -654,7 +654,7 @@ function initCharts(){
 </div>
 
 <script>
-const HASH='c0b7cf6a422e6aaa7238115eb71430159923ecf1c4b971c6786f9a07b222c4fe';
+const HASH='3dc28ae6f669a2bdf7b700a15f60c42b695a7b07ad2394aa9203ca48e2dc321f';
 async function checkPwd(){
   const val=document.getElementById('pwd-input').value;
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(val));
