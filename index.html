@@ -507,9 +507,17 @@ const SEED=[
   {id:'cnf-ing',title:'Ingeniero Civil Electricista — Proyectos y Montajes',company:'C&F Ingeniería y Proyectos SpA',location:'Temuco, Araucanía',salary:'$2.373.000–$2.966.000 liq. est.',salStatus:'warn',description:'Empresa de ingeniería con proyectos de instalaciones eléctricas en Temuco. Requiere 5 años de experiencia. Cumples con holgura (9 años). Sin escala MOP, pero puede ser paso estratégico.',warning:null,fit:7,fitColor:'var(--purple)',url:'https://cl.trabajo.org/oferta-5486-0bd0bada8390fa66a6ada8e238343a47',starred:false,deadline:null,addedDate:'2026-06-12',logoText:'C&F',logoStyle:'background:var(--purple2);color:var(--purple)',type:'normal',salBadge:'⚠️ Verificar renta',salBadgeCls:'b-amber',chips:['📍 Temuco','5 años exp. req.','Proyectos eléctricos'],topBadges:[{t:'Empresa mediana',c:'b-gray'},{t:'Fit: 7/10',c:'b-blue'}]},
   {id:'cge-adecco',title:'Ingeniero Eléctrico — Diseño Redes Distribución',company:'Adecco Chile (para CGE Distribución)',location:'La Araucanía',salary:'$1.500.000–$1.700.000 liq. INFORMADO',salStatus:'bad',description:'Diseño de redes distribución eléctrica para CGE. Requiere SEC Clase A, 3 años exp. e inglés fluido. CGE es empleador objetivo tuyo, pero la renta informada está muy por debajo de tu umbral mínimo.',warning:'🚫 Renta informada es menos de la mitad de tu objetivo. Solo considera si hay posibilidad real de negociar al doble.',fit:5,fitColor:'var(--red)',url:'https://cl.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-ingeniero-electrico-la-araucania-en-temuco-DCAEF8AFADA159CC61373E686DCF3405',starred:false,deadline:null,addedDate:'2026-06-12',logoText:'CGE',logoStyle:'background:var(--red2);color:var(--red)',type:'normal',salBadge:'🚫 Muy bajo expectativa',salBadgeCls:'b-red',chips:['Inglés fluido req.','SEC Clase A req.'],topBadges:[{t:'Distribuidora eléctrica',c:'b-gray'},{t:'Fit: 5/10',c:'b-blue'}]}
 ];
+const SEED_VERSION='v4';
 let offers=[],currentFilter='all';
 const STATUS_LABELS={'sin-postular':'Sin postular','postulado':'Postulado','en-proceso':'En proceso','rechazado':'Rechazado','oferta-recibida':'Oferta recibida'};
 function loadOffers(){
+  const savedVersion=localStorage.getItem('emp_version');
+  if(savedVersion!==SEED_VERSION){
+    localStorage.setItem('emp_v2',JSON.stringify(SEED));
+    localStorage.setItem('emp_version',SEED_VERSION);
+    offers=JSON.parse(JSON.stringify(SEED));
+    return;
+  }
   const r=localStorage.getItem('emp_v2');
   if(r){try{offers=JSON.parse(r);}catch{offers=JSON.parse(JSON.stringify(SEED));}}
   else{offers=JSON.parse(JSON.stringify(SEED));}
