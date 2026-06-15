@@ -178,6 +178,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
 .notes-toggle{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 7px;border-radius:5px;border:1px solid var(--border);background:transparent;transition:all .15s;line-height:1.4}
 .notes-toggle:hover{color:var(--text2);background:var(--surface2)}
 .notes-toggle.has-notes{color:var(--teal);border-color:var(--teal);background:var(--teal2)}
+.status-history{padding:2px 16px 8px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.hist-item{font-size:10px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;white-space:nowrap}
+.stale-badge{font-size:10px;font-weight:600;background:var(--amber2);color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:2px 8px;white-space:nowrap;margin-left:4px}
 </style>
 </head>
 <body>
@@ -339,6 +342,8 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
     <div class="result-stat"><div class="n" id="stat-postulado" style="color:var(--blue)">0</div><div class="l">Postuladas</div></div>
     <div class="result-stat"><div class="n" id="stat-proceso" style="color:var(--amber)">0</div><div class="l">En proceso</div></div>
     <div class="result-stat"><div class="n" id="stat-starred" style="color:var(--amber)">0</div><div class="l">⭐ Seguimiento</div></div>
+    <div class="result-stat"><div class="n" id="stat-rechazado" style="color:var(--red)">0</div><div class="l">Rechazadas</div></div>
+    <div class="result-stat"><div class="n" id="stat-tasa" style="color:var(--teal)">—</div><div class="l">Tasa respuesta</div></div>
   </div>
   <div class="filter-bar">
     <span style="font-size:12px;color:var(--text3);font-weight:500">Filtrar:</span>
@@ -348,6 +353,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
     <button class="filter-pill" onclick="setFilter('postulado',this)">📤 Postuladas</button>
     <button class="filter-pill" onclick="setFilter('en-proceso',this)">🔄 En proceso</button>
     <button class="filter-pill" onclick="setFilter('deadline',this)">📅 Con fecha cierre</button>
+    <button class="filter-pill" onclick="setFilter('rechazado',this)">❌ Rechazadas</button>
   </div>
   <div id="offer-list"></div>
   <div style="background:var(--surface2);border:1px solid rgba(245,166,35,.2);border-radius:var(--r2);padding:1rem 1.25rem;margin-top:1rem">
@@ -572,7 +578,7 @@ function loadOffers(){
   const r=localStorage.getItem('emp_v2');
   if(r){try{offers=JSON.parse(r);}catch{offers=JSON.parse(JSON.stringify(SEED));}}
   else{offers=JSON.parse(JSON.stringify(SEED));}
-  offers.forEach(o=>{if(!o.status)o.status='sin-postular';if(o.notes===undefined)o.notes='';});
+  offers.forEach(o=>{if(!o.status)o.status='sin-postular';if(o.notes===undefined)o.notes='';if(!o.statusHistory)o.statusHistory=[];});
 }
 function saveOffers(){localStorage.setItem('emp_v2',JSON.stringify(offers));}
 function getFiltered(){
@@ -582,13 +588,14 @@ function getFiltered(){
   if(currentFilter==='deadline')return offers.filter(o=>o.deadline);
   if(currentFilter==='postulado')return offers.filter(o=>o.status==='postulado');
   if(currentFilter==='en-proceso')return offers.filter(o=>o.status==='en-proceso');
+  if(currentFilter==='rechazado')return offers.filter(o=>o.status==='rechazado');
   return offers;
 }
 function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderOffers();}
 function toggleStar(id){const o=offers.find(x=>x.id===id);if(o){o.starred=!o.starred;saveOffers();renderOffers();updateCount();}}
 function deleteOffer(id){if(!confirm('¿Eliminar esta oferta?'))return;offers=offers.filter(x=>x.id!==id);saveOffers();renderOffers();updateCount();}
 function updateDeadline(id,val){const o=offers.find(x=>x.id===id);if(o){o.deadline=val||null;saveOffers();renderAlerts();}}
-function updateStatus(id,val){const o=offers.find(x=>x.id===id);if(o){o.status=val;saveOffers();renderOffers();}}
+function updateStatus(id,val){const o=offers.find(x=>x.id===id);if(o){o.status=val;if(!o.statusHistory)o.statusHistory=[];o.statusHistory.push({status:val,date:new Date().toISOString().slice(0,10)});saveOffers();renderOffers();}}
 function updateNotes(id,val){const o=offers.find(x=>x.id===id);if(o){o.notes=val;saveOffers();}}
 function toggleNotes(id){const el=document.getElementById('notes-'+id);if(!el)return;const vis=el.style.display==='block';el.style.display=vis?'none':'block';if(!vis)el.querySelector('textarea').focus();}
 function updateCount(){document.getElementById('oferta-count').textContent=offers.length;}
@@ -597,21 +604,37 @@ function fmtDate(d){if(!d)return '';return new Date(d+'T00:00:00').toLocaleDateS
 function renderAlerts(){
   const el=document.getElementById('deadline-alerts');if(!el)return;
   const b=[];
+  const today=new Date();today.setHours(0,0,0,0);
   offers.forEach(o=>{
-    if(!o.deadline)return;const d=daysUntil(o.deadline);if(d===null||d<0)return;
-    if(d===0)b.push('<div class="dl-banner dl-urgent">🚨 <strong>¡HOY CIERRA!</strong> '+o.title+' — '+o.company+'</div>');
-    else if(d===1)b.push('<div class="dl-banner dl-urgent">🚨 <strong>¡MAÑANA CIERRA!</strong> '+o.title+' — '+o.company+'</div>');
-    else if(d<=3)b.push('<div class="dl-banner dl-warn">⚠️ <strong>Cierra en '+d+' días ('+fmtDate(o.deadline)+')</strong> — '+o.title+' · '+o.company+'</div>');
-    else if(d<=5)b.push('<div class="dl-banner dl-info">📅 <strong>Cierra en '+d+' días ('+fmtDate(o.deadline)+')</strong> — '+o.title+' · '+o.company+'</div>');
+    if(o.deadline){const d=daysUntil(o.deadline);if(d!==null&&d>=0){
+      if(d===0)b.push('<div class="dl-banner dl-urgent">🚨 <strong>¡HOY CIERRA!</strong> '+o.title+' — '+o.company+'</div>');
+      else if(d===1)b.push('<div class="dl-banner dl-urgent">🚨 <strong>¡MAÑANA CIERRA!</strong> '+o.title+' — '+o.company+'</div>');
+      else if(d<=3)b.push('<div class="dl-banner dl-warn">⚠️ <strong>Cierra en '+d+' días ('+fmtDate(o.deadline)+')</strong> — '+o.title+' · '+o.company+'</div>');
+      else if(d<=5)b.push('<div class="dl-banner dl-info">📅 <strong>Cierra en '+d+' días ('+fmtDate(o.deadline)+')</strong> — '+o.title+' · '+o.company+'</div>');
+    }}
+    if(o.status==='postulado'){
+      const lastDate=o.statusHistory&&o.statusHistory.length>0?o.statusHistory[o.statusHistory.length-1].date:o.addedDate;
+      if(lastDate){const diff=Math.round((today-new Date(lastDate+'T00:00:00'))/86400000);
+        if(diff>=7)b.push('<div class="dl-banner dl-warn">🔔 <strong>Postulada hace '+diff+' días sin actualizar</strong> — '+o.title+' · '+o.company+' — ¿Hacer seguimiento?</div>');
+      }
+    }
   });
   el.innerHTML=b.join('');
 }
 function renderStats(){
   document.getElementById('stat-total').textContent=offers.length;
   document.getElementById('stat-ok').textContent=offers.filter(o=>o.salStatus==='ok').length;
-  document.getElementById('stat-postulado').textContent=offers.filter(o=>o.status==='postulado').length;
-  document.getElementById('stat-proceso').textContent=offers.filter(o=>o.status==='en-proceso').length;
+  const postuladas=offers.filter(o=>o.status==='postulado').length;
+  const enProceso=offers.filter(o=>o.status==='en-proceso').length;
+  const rechazadas=offers.filter(o=>o.status==='rechazado').length;
+  const ofertaRec=offers.filter(o=>o.status==='oferta-recibida').length;
+  document.getElementById('stat-postulado').textContent=postuladas;
+  document.getElementById('stat-proceso').textContent=enProceso;
   document.getElementById('stat-starred').textContent=offers.filter(o=>o.starred).length;
+  document.getElementById('stat-rechazado').textContent=rechazadas;
+  const totalMovidas=postuladas+enProceso+rechazadas+ofertaRec;
+  const tasa=totalMovidas>0?Math.round((enProceso+ofertaRec)/totalMovidas*100)+'%':'—';
+  document.getElementById('stat-tasa').textContent=tasa;
 }
 function renderOffers(){
   renderStats();renderAlerts();
@@ -628,6 +651,11 @@ function renderOffers(){
     const st=o.status||'sin-postular';
     const stBtns=Object.entries(STATUS_LABELS).map(([k,v])=>'<button class="status-btn s-'+k+(st===k?' active':'')+'" onclick="updateStatus(\''+eid+'\',\''+k+'\')">'+v+'</button>').join('');
     const hasNotes=o.notes&&o.notes.trim().length>0;
+    const histItems=(o.statusHistory||[]).slice(-4).map(h=>'<span class="hist-item">'+STATUS_LABELS[h.status]+' · '+fmtDate(h.date)+'</span>').join('');
+    const histHtml=histItems?'<div class="status-history"><span style="font-size:10px;color:var(--text3);margin-right:4px">Historial:</span>'+histItems+'</div>':'';
+    const today2=new Date();today2.setHours(0,0,0,0);
+    let staleHtml='';
+    if(o.status==='postulado'){const ld=o.statusHistory&&o.statusHistory.length>0?o.statusHistory[o.statusHistory.length-1].date:o.addedDate;if(ld){const diff=Math.round((today2-new Date(ld+'T00:00:00'))/86400000);if(diff>=7)staleHtml='<span class="stale-badge">🔔 '+diff+' días sin actualizar</span>';}}
     return '<div class="offer-card'+(o.type==='mop'?' mop':'')+(o.starred?' starred-card':'')+'">'
       +'<div class="offer-header">'
         +'<div class="offer-logo" style="'+o.logoStyle+'">'+o.logoText+'</div>'
@@ -636,7 +664,8 @@ function renderOffers(){
         +'<div class="offer-right"><div class="offer-sal '+o.salStatus+'">'+o.salary+'</div>'
           +'<span class="badge '+o.salBadgeCls+'" style="margin-top:5px">'+o.salBadge+'</span></div>'
       +'</div>'
-      +'<div class="status-row"><span class="status-label">Estado:</span>'+stBtns+'</div>'
+      +'<div class="status-row"><span class="status-label">Estado:</span>'+stBtns+staleHtml+'</div>'
+      +histHtml
       +'<div class="offer-body">'
         +'<div class="offer-desc">'+o.description+'</div>'+wb
         +'<div class="fit-row"><span class="fit-label">Fit perfil</span><div class="fit-bg"><div class="fit-fill" style="width:'+o.fit*10+'%;background:'+o.fitColor+'"></div></div><span class="fit-score" style="color:'+o.fitColor+'">'+o.fit+'/10</span></div>'
