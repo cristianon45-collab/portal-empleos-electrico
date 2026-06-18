@@ -5,11 +5,23 @@ const RESEND_API_KEY = "re_7Z94YSLj_94bFEZ6Sqfo34Vat37cLp6mH";
 const DEST_EMAIL = "c.alarcon.cerd@gmail.com";
 
 const KEYWORDS = [
-  "eléctrico", "electrico", "electricidad", "instalación eléctrica",
-  "instalacion electrica", "mantención eléctrica", "mantencion electrica",
-  "tablero eléctrico", "alumbrado", "subestación", "subestacion",
-  "grupo electrógeno", "grupo electrogeno", "transformador", "conductor eléctrico",
-  "cable eléctrico", "luminaria", "fotovoltaico", "solar", "BT", "MT", "AT"
+  "eléctrico", "electrico", "electricidad",
+  "instalación eléctrica", "instalacion electrica",
+  "mantención eléctrica", "mantencion electrica",
+  "tablero eléctrico", "tablero electrico",
+  "alumbrado público", "alumbrado publico",
+  "subestación", "subestacion",
+  "grupo electrógeno", "grupo electrogeno",
+  "conductor eléctrico", "conductor electrico",
+  "cable eléctrico", "cable electrico",
+  "luminaria led", "luminaria vial",
+  "fotovoltaico", "panel solar",
+  "media tensión", "media tension",
+  "alta tensión", "alta tension",
+  "baja tensión", "baja tension",
+  "tendido eléctrico", "red eléctrica",
+  "sistema eléctrico", "instalaciones eléctricas",
+  "transformador eléctrico", "empalme eléctrico"
 ];
 
 async function fetchLicitaciones() {
@@ -43,8 +55,7 @@ function buildHtml(matches) {
       <tr>
         <td style="padding:8px;border:1px solid #ddd">${l.CodigoExterno}</td>
         <td style="padding:8px;border:1px solid #ddd">${l.Nombre}</td>
-        <td style="padding:8px;border:1px solid #ddd">${l.NombreOrganismo}</td>
-        <td style="padding:8px;border:1px solid #ddd">${l.FechaCierre ?? "—"}</td>
+        <td style="padding:8px;border:1px solid #ddd">${l.FechaCierre ? l.FechaCierre.slice(0,10) : "—"}</td>
         <td style="padding:8px;border:1px solid #ddd">
           <a href="https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${l.CodigoExterno}">
             Ver licitación
@@ -62,7 +73,6 @@ function buildHtml(matches) {
       <tr style="background:#1a3c6b;color:white">
         <th style="padding:8px">Código</th>
         <th style="padding:8px">Nombre</th>
-        <th style="padding:8px">Organismo</th>
         <th style="padding:8px">Cierre</th>
         <th style="padding:8px">Enlace</th>
       </tr>
